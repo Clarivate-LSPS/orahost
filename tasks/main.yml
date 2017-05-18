@@ -3,8 +3,9 @@
 
   - name: Check for correct OS family & min version
     assert: 
-      that: "ansible_os_family in os_family_supported"
-      that: "ansible_distribution_version >= '{{ os_min_supported_version[ansible_os_family] }}'"
+      that: 
+       - "ansible_os_family in os_family_supported"
+       - "ansible_distribution_version >= '{{ os_min_supported_version[ansible_os_family] }}'"
     tags: 
      - oscheck
 
@@ -15,15 +16,17 @@
   - name: Install RedHat packages required by Oracle
     yum: name={{ item }} state=installed
     with_items: "{{oracle_packages[ansible_os_family]}}"
-    when: install_os_packages
-    when: redhat_installation
+    when: 
+     - install_os_packages
+     - redhat_installation
     tags: os_packages
 
   - name: Install Debian packages required by Oracle
     apt: name={{ item }} state=installed
     with_items: "{{oracle_packages[ansible_os_family]}}"
-    when: install_os_packages
-    when: debian_installation
+    when: 
+     - install_os_packages
+     - debian_installation
     tags: os_packages
 
   - name: Emulate RedHat directories on Debian
@@ -44,15 +47,17 @@
 
   - name: Disable selinux (permanently)
     selinux: state=disabled
-    when: disable_selinux
-    when: redhat_installation
+    when: 
+     - disable_selinux
+     - redhat_installation
     tags: selinux
     register: selinux
 
   - name: Disable selinux (runtime)
     shell: setenforce 0
-    when: disable_selinux
-    when: redhat_installation
+    when: 
+     - disable_selinux
+     - redhat_installation
     tags: selinux
     ignore_errors: true
 
@@ -256,8 +261,9 @@
               line='\1 numa=off'
     with_sequence: start=0 end={{ count.stdout }}
     tags: thpnuma
-    when: disable_numa_boot
-    when: redhat_installation
+    when: 
+     - disable_numa_boot
+     - redhat_installation
 
   - name: Disable Transparent Hugepages (runtime)
     shell: if test -f /sys/kernel/mm/transparent_hugepage/enabled; then echo never > /sys/kernel/mm/transparent_hugepage/enabled; fi;
